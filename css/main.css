@@ -1,0 +1,48 @@
+body {
+    /*background-image: url("../img/wojak.png");*/
+    background-repeat: no-repeat;
+    background-position: center; /* Center the image */
+    background-size: cover; /* Resize the background image to cover the entire container */
+    opacity: 0.95;
+}
+
+/* Header related */
+.header_container {
+    display: inline-flex;
+    padding-left: 50px;
+}
+#header_text {
+    padding-left: 30px;
+    font-size: 18px;
+}
+
+/* Input related*/
+#input_addresses {
+    word-wrap: break-word;
+    word-break: break-all;
+    height: 100px;
+    min-width: 370px;
+}
+
+/* Results related*/
+#resultsDiv {
+    display:none;
+}
+
+#div_totalEarnings {
+    display: inline-flex;
+    padding-left: 50px;
+}
+.earnings_spacing {
+    padding-left: 3px;
+    padding-right: 3px;
+    vertical-align: text-bottom;
+}
+
+#image_title {
+    max-height: 40px;
+}
+
+#imageHint {
+    background-color: white;
+}

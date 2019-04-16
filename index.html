@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="img/doge.ico">
+    <title>Pal earnings dashboard</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="css/jumbotron-narrow.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="js/base64js.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <div class="header_container">
+        <img id="image_title" src="img/logo-top.de5597dd.svg" />
+        <h3 id="header_text">Earnings dashboard (unofficial)</h3>
+    </div>
+
+    <div class="container">
+        <!-- Inputs-->
+        <div class="row marketing">
+            <div>
+                <table style="width:80%" class="left">
+                    <tr>
+                        <td>Pal address (seperated by commas)</td>
+                        <td><input id="input_addresses" type="text" text placeholder="0xef45b79def79a2cd2d0c77f84fddaab8d0b8be35" value="" /></td>
+                    </tr>
+
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="button" class="btn btn-lg btn-success"
+                                   onclick="queryInputAddresses();"
+                                   value="Query" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <footer class="footer" id="resultsDiv">
+            <div class="row marketing">
+                <div>
+                    <table id="table_results" style="width:80%" class="left">
+                        <tr>
+                            <td>Address</td>
+                            <td>Earnings</td>
+                            <td>Bonus</td>
+                            <td>Transaction count</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div id="div_totalEarnings">
+                <p class="earnings_spacing" id="header_text">Total earnings for this month: </p>
+                <p class="earnings_spacing" id="h3_totalEarnings">0</p>
+                <p class="earnings_spacing"> PAL</p>
+            </div>
+        </footer>
+
+        <!-- real footer-->
+        <footer class="footer">
+            <p>&copy; <a href="https://github.com/lastbattle">lastbattle</a> 2019.</p>
+
+            <p>Bitcoin: 3LjghS5RspjboMMDAGdGidrZUPeUQm6p8y <br/>Ethereum: 0x929158755DCF2861D835d93fa5d1609c1bF1F52c</p>
+        </footer>
+    </div> <!-- /container -->
+    <script src="js/main.js"></script>
+</body>
+</html>
