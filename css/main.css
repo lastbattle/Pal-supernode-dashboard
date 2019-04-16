@@ -20,7 +20,7 @@ body {
 #input_addresses {
     word-wrap: break-word;
     word-break: break-all;
-    height: 100px;
+    height: 60px;
     min-width: 370px;
 }
 
