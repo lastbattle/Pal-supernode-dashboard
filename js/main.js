@@ -1,4 +1,4 @@
-s/**
+/**
  * Constants
  */
 var queryAPI = "https://fumx256y2c.execute-api.ap-southeast-1.amazonaws.com/dev/sn/incentive?address=";
@@ -74,7 +74,7 @@ function queryInputAddresses() {
 
                     // Earnings cell
                     var cell_earnings = newRow.insertCell(0);
-                    let column_earnings = document.createTextNode(parseInt(incentive) + " PAL");
+                    let column_earnings = document.createTextNode((incentive).toFixed(2) + " PAL");
                     cell_earnings.appendChild(column_earnings);
 
                     // Address cell
@@ -100,7 +100,7 @@ function queryInputAddresses() {
 
         //console.log(inputAddresses);
     } finally {
-        totalEarningsElement.innerHTML = parseInt(totalEarningsElement.innerHTML);
+        totalEarningsElement.innerHTML = parseFloat(totalEarningsElement.innerHTML).toFixed(2);
 
         bIsQuerying = false;
     }
