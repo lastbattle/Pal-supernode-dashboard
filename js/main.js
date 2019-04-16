@@ -69,7 +69,7 @@ function queryInputAddresses() {
 
                     // Bonus cell
                     var cell_bonus = newRow.insertCell(0);
-                    let column_bonus = document.createTextNode(bonus);
+                    let column_bonus = document.createTextNode((bonus * 100) + "%");
                     cell_bonus.appendChild(column_bonus);
 
                     // Earnings cell
