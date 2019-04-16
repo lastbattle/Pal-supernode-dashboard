@@ -51,8 +51,6 @@ function queryInputAddresses() {
                     var bIsValid = result.is_valid == true;
                     var transactionsCount = result.transactions.length;
 
-                    if (bIsValid == false)
-                        return;
 
                     console.log(result);
                     console.log(bIsValid);
@@ -64,17 +62,17 @@ function queryInputAddresses() {
 
                     // TX count cell
                     var cell_txCount = newRow.insertCell(0);
-                    let column_txCount = document.createTextNode(transactionsCount);
+                    let column_txCount = document.createTextNode(!bIsValid ? 0 : transactionsCount);
                     cell_txCount.appendChild(column_txCount);
 
                     // Bonus cell
                     var cell_bonus = newRow.insertCell(0);
-                    let column_bonus = document.createTextNode((bonus * 100) + "%");
+                    let column_bonus = document.createTextNode(!bIsValid ? 0 : ((bonus * 100) + "%"));
                     cell_bonus.appendChild(column_bonus);
 
                     // Earnings cell
                     var cell_earnings = newRow.insertCell(0);
-                    let column_earnings = document.createTextNode((incentive).toFixed(2) + " PAL");
+                    let column_earnings = document.createTextNode(!bIsValid ? "(Unknown)" : ((incentive).toFixed(2) + " PAL"));
                     cell_earnings.appendChild(column_earnings);
 
                     // Address cell
