@@ -46,3 +46,10 @@ body {
 #imageHint {
     background-color: white;
 }
+
+/* Footer*/
+#coinmarketcap_widget{
+    padding-bottom: 30px;
+    padding-top: 10px;
+    max-width: 500px;
+}

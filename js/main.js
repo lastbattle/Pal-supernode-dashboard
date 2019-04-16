@@ -105,7 +105,6 @@ function queryInputAddresses() {
         bIsQuerying = false;
     }
 }
-//https://explorer.pal.network/incentive?address=0x7c554cc439e471ca072416a1af852112d6a2eb8c
 
 //////////////////////////////// UTILS
 function Base64Encode(str, encoding = 'utf-8') {
