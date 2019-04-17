@@ -19,6 +19,10 @@ function queryInputAddresses() {
     var totalEarningsElement = document.getElementById('h3_totalEarnings');
     totalEarningsElement.innerHTML = "0";
 
+    // Total transaction element
+    var totalTxElement = document.getElementById('h3_totalTxCount');
+    totalTxElement.innerHTML = "0";
+
     // Table element
     var tableElement = document.getElementById('table_results');
     // Cleanup existing table
@@ -92,6 +96,9 @@ function queryInputAddresses() {
 
                         // Update total earnings
                         totalEarningsElement.innerHTML = parseInt(totalEarningsElement.innerHTML) + incentive;
+
+                        // Update total transactions
+                        totalTxElement.innerHTML = parseInt(totalTxElement.innerHTML) + txCount;
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         alert("Error querying API. Have you tried restarting your PC? :D " + XMLHttpRequest.statusText + " " + textStatus + " " + errorThrown);
@@ -102,6 +109,7 @@ function queryInputAddresses() {
             //console.log(inputAddresses);
         } finally {
             totalEarningsElement.innerHTML = parseFloat(totalEarningsElement.innerHTML).toFixed(2);
+            totalTxElement.innerHTML = parseInt(totalTxElement.innerHTML);
             document.getElementById('button_query').disabled = false;
 
             bIsQuerying = false;

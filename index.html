@@ -56,7 +56,7 @@
         </div>
 
         <!-- Results -->
-        <footer class="footer" id="resultsDiv">
+        <div class="row marketing" id="resultsDiv">
             <div class="row marketing">
                 <div>
                     <table id="table_results" style="width:80%" class="left">
@@ -70,15 +70,22 @@
                 </div>
             </div>
 
-            <div id="div_totalEarnings">
-                <p class="earnings_spacing" id="header_text">Total earnings for this month: </p>
-                <p class="earnings_spacing" id="h3_totalEarnings">0</p>
-                <p class="earnings_spacing"> PAL</p>
+            <div class="row marketing" >
+                <table style="max-width:40%" class="left">
+                    <tr>
+                        <td id="header_text">Total earnings for this month: </td>
+                        <td><p class="earnings_spacing" id="h3_totalEarnings">0</p></td>
+                    </tr>
+                    <tr>
+                        <td id="header_text2">Total TXs for this month:    </td>
+                        <td><p class="earnings_spacing" id="h3_totalTxCount">0</p></td>
+                    </tr>
+                </table>
             </div>
 
             <script type="text/javascript" src="https://files.coinmarketcap.com/static/widget/currency.js"></script>
             <div id="coinmarketcap_widget" class="coinmarketcap-currency-widget" data-currencyid="2718" data-base="USD" data-secondary="BTC"></div>
-        </footer>
+        </div>
 
         <!-- real footer-->
         <footer class="footer">

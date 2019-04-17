@@ -15,6 +15,10 @@ body {
     padding-left: 30px;
     font-size: 18px;
 }
+#header_text2 {
+    padding-left: 30px;
+    font-size: 18px;
+}
 
 /* Input related*/
 #input_addresses {
@@ -29,13 +33,14 @@ body {
     display:none;
 }
 
-#div_totalEarnings {
+.div_totalEarnings {
+    max-width:400px;
     display: inline-flex;
     padding-left: 50px;
 }
 .earnings_spacing {
-    padding-left: 3px;
-    padding-right: 3px;
+    padding-top: 6px;
+    padding-left: 20px;
     vertical-align: text-bottom;
 }
 
