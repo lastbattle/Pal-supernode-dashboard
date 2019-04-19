@@ -66,6 +66,7 @@ function queryInputAddresses() {
                         //console.log(transactionsCount);
 
                         var newRow = tableElement.insertRow(-1);
+                        newRow.className = "table_results_tr";
 
                         // TX count cell
                         var cell_txCount = newRow.insertCell(0);
@@ -91,6 +92,7 @@ function queryInputAddresses() {
                         addressAHref.title = "https://explorer.pal.network/address/" + address;
                         addressAHref.href = "https://explorer.pal.network/address/" + address;
 
+                        cell_address.className = "table_results_td";
                         cell_address.appendChild(addressAHref);
 
 

@@ -21,6 +21,11 @@ body {
 }
 
 /* Input related*/
+#table_main {
+    width: 70%;
+}
+
+
 #input_addresses {
     word-wrap: break-word;
     word-break: break-all;
@@ -29,6 +34,10 @@ body {
 }
 
 /* Results related*/
+#table_results {
+    width: 70%;
+}
+
 #resultsDiv {
     display:none;
 }
@@ -53,8 +62,42 @@ body {
 }
 
 /* Footer*/
-#coinmarketcap_widget{
+#table_total {
+    max-width: 40%;
+}
+
+#coinmarketcap_widget {
     padding-bottom: 30px;
     padding-top: 10px;
     max-width: 500px;
+}
+
+/* responsive */
+@media only screen and (max-width: 600px) {
+    #input_addresses {
+        word-wrap: break-word;
+        word-break: break-all;
+        height: 40px;
+        min-width: 170px;
+    }
+
+    #table_main {
+        min-width: 400px;
+    } 
+
+    #table_results {
+        min-width: 400px;
+    }
+
+    .table_results_td {
+        max-width: 130px;
+        word-break:break-word;
+    }
+    .table_results_tr {
+        border-bottom: 1pt solid black;
+    }
+    
+    #table_total {
+        min-width: 400px;
+    }
 }
