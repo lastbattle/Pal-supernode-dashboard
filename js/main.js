@@ -91,6 +91,7 @@ function queryInputAddresses() {
                         addressAHref.appendChild(column_address);
                         addressAHref.title = "https://explorer.pal.network/address/" + address;
                         addressAHref.href = "https://explorer.pal.network/address/" + address;
+                        addressAHref.target = "_blank";
 
                         cell_address.className = "table_results_td";
                         cell_address.appendChild(addressAHref);
