@@ -40,6 +40,9 @@ function queryInputAddresses() {
             var resultsDivElement = document.getElementById('resultsDiv');
             resultsDivElement.style.display = "block";
 
+            var totalTx = 0;
+            var totalEarnings = 0;
+
             for (var i = 0; i < addressSplit.length; i++) {
                 var address = addressSplit[i];
 
@@ -98,10 +101,12 @@ function queryInputAddresses() {
 
 
                         // Update total earnings
-                        totalEarningsElement.innerHTML = parseInt(totalEarningsElement.innerHTML) + incentive;
+                        totalEarnings += incentive;
+                        //totalEarningsElement.innerHTML = parseInt(totalEarningsElement.innerHTML) + incentive;
 
                         // Update total transactions
-                        totalTxElement.innerHTML = parseInt(totalTxElement.innerHTML) + txCount;
+                        totalTx += txCount;
+                        //totalTxElement.innerHTML = parseInt(totalTxElement.innerHTML) + txCount;
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         alert("Error querying API. Have you tried restarting your PC? :D " + XMLHttpRequest.statusText + " " + textStatus + " " + errorThrown);
@@ -111,8 +116,8 @@ function queryInputAddresses() {
 
             //console.log(inputAddresses);
         } finally {
-            totalEarningsElement.innerHTML = parseFloat(totalEarningsElement.innerHTML).toFixed(2);
-            totalTxElement.innerHTML = parseInt(totalTxElement.innerHTML);
+            totalEarningsElement.innerHTML = totalEarnings.toFixed(2);
+            totalTxElement.innerHTML = totalTx;
             document.getElementById('button_query').disabled = false;
 
             bIsQuerying = false;
