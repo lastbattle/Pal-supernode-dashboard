@@ -74,14 +74,14 @@ function queryInputAddresses() {
                         var newRow = tableElement.insertRow(-1);
                         newRow.className = "table_results_tr";
 
-                        // TX count cell
-                        var cell_txCount = newRow.insertCell(0);
-                        let column_txCount = document.createTextNode(!bIsValid ? 0 : transactionsCount);
-                        cell_txCount.appendChild(column_txCount);
-
                         // Last transaction
                         //timestamp: "2019-04-17 11:22:01"
+                        var dateNow = new Date;
+                        var utc_timestamp = Date.UTC(dateNow.getUTCFullYear(), dateNow.getUTCMonth(), dateNow.getUTCDate(),
+                            dateNow.getUTCHours(), dateNow.getUTCMinutes(), dateNow.getUTCSeconds(), dateNow.getUTCMilliseconds());
+
                         var bFirstTx = false;
+                        var txThisMonth = 0;
                         for (var z = 0; z < result.transactions.length; z++) {
                             var tx = result.transactions[z];
          
@@ -90,17 +90,13 @@ function queryInputAddresses() {
                             var timestamp_2_split = timestamp_split[1].split(':');
 
                             //var date = Date.parse(tx.timestamp);
-                            var date = Date.UTC(
+                            var utc_txTimestamp = Date.UTC(
                                 parseInt(timestamp_1_split[0]), parseInt(timestamp_1_split[1]) - 1, parseInt(timestamp_1_split[2]),
                                 parseInt(timestamp_2_split[0]), parseInt(timestamp_2_split[1]), parseInt(timestamp_2_split[2]), 0);
-
-                            var now = new Date;
-                            var utc_timestamp = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
-                                now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
+                            var date_tx = new Date(utc_txTimestamp);
 
                             //console.log(utc_timestamp + " " + date);
-
-                            var relativeDiff = timeDifference(utc_timestamp, date);
+                            var relativeDiff = timeDifference(utc_timestamp, utc_txTimestamp);
 
                             if (!bFirstTx) {
                                 bFirstTx = true;
@@ -108,9 +104,18 @@ function queryInputAddresses() {
                                 var cell_lastTxTime = newRow.insertCell(0);
                                 let column_lastTxTime = document.createTextNode(relativeDiff);
                                 cell_lastTxTime.appendChild(column_lastTxTime);
-                                break;
+                            }
+
+                            // determine the number of tx for this month
+                            if (dateNow.getUTCFullYear() == date_tx.getUTCFullYear() && dateNow.getUTCMonth() == date_tx.getUTCMonth()) {
+                                txThisMonth++;
                             }
                         }
+
+                        // TX count cell
+                        var cell_txCount = newRow.insertCell(0);
+                        let column_txCount = document.createTextNode(!bIsValid ? 0 : transactionsCount + " (" + txThisMonth + ")");
+                        cell_txCount.appendChild(column_txCount);
 
                         // Bonus cell
                         var cell_bonus = newRow.insertCell(0);
