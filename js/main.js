@@ -23,6 +23,9 @@ function queryInputAddresses() {
     var totalTxElement = document.getElementById('h3_totalTxCount');
     totalTxElement.innerHTML = "0";
 
+    // Total address element
+    var totalAddressElement = document.getElementById('h3_totalAddressCount');;
+
     // Table element
     var tableElement = document.getElementById('table_results');
     // Cleanup existing table
@@ -118,6 +121,8 @@ function queryInputAddresses() {
         } finally {
             totalEarningsElement.innerHTML = totalEarnings.toFixed(2);
             totalTxElement.innerHTML = totalTx;
+            totalAddressElement.innerHTML = addressSplit.length;
+
             document.getElementById('button_query').disabled = false;
 
             bIsQuerying = false;
