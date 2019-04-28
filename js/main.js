@@ -66,7 +66,7 @@ function queryInputAddresses() {
 
 
                         console.log(result);
-                        console.log(bIsValid);
+                        //console.log(bIsValid);
                         console.log(address);
                         //console.log(result.tx_count);
                         //console.log(transactionsCount);
@@ -78,6 +78,39 @@ function queryInputAddresses() {
                         var cell_txCount = newRow.insertCell(0);
                         let column_txCount = document.createTextNode(!bIsValid ? 0 : transactionsCount);
                         cell_txCount.appendChild(column_txCount);
+
+                        // Last transaction
+                        //timestamp: "2019-04-17 11:22:01"
+                        var bFirstTx = false;
+                        for (var z = 0; z < result.transactions.length; z++) {
+                            var tx = result.transactions[z];
+         
+                            var timestamp_split = tx.timestamp.split(' ');
+                            var timestamp_1_split = timestamp_split[0].split('-');
+                            var timestamp_2_split = timestamp_split[1].split(':');
+
+                            //var date = Date.parse(tx.timestamp);
+                            var date = Date.UTC(
+                                parseInt(timestamp_1_split[0]), parseInt(timestamp_1_split[1]) - 1, parseInt(timestamp_1_split[2]),
+                                parseInt(timestamp_2_split[0]), parseInt(timestamp_2_split[1]), parseInt(timestamp_2_split[2]), 0);
+
+                            var now = new Date;
+                            var utc_timestamp = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
+                                now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
+
+                            //console.log(utc_timestamp + " " + date);
+
+                            var relativeDiff = timeDifference(utc_timestamp, date);
+
+                            if (!bFirstTx) {
+                                bFirstTx = true;
+
+                                var cell_lastTxTime = newRow.insertCell(0);
+                                let column_lastTxTime = document.createTextNode(relativeDiff);
+                                cell_lastTxTime.appendChild(column_lastTxTime);
+                                break;
+                            }
+                        }
 
                         // Bonus cell
                         var cell_bonus = newRow.insertCell(0);
@@ -149,4 +182,39 @@ function generateRandomText(length) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
+}
+
+function timeDifference(current, previous) {
+
+    var msPerMinute = 60 * 1000;
+    var msPerHour = msPerMinute * 60;
+    var msPerDay = msPerHour * 24;
+    var msPerMonth = msPerDay * 30;
+    var msPerYear = msPerDay * 365;
+
+    var elapsed = current - previous;
+
+    if (elapsed < msPerMinute) {
+        return Math.round(elapsed / 1000) + ' secs ago';
+    }
+
+    else if (elapsed < msPerHour) {
+        return Math.round(elapsed / msPerMinute) + ' mins ago';
+    }
+
+    else if (elapsed < msPerDay) {
+        return Math.round(elapsed / msPerHour) + ' hrs ago';
+    }
+
+    else if (elapsed < msPerMonth) {
+        return Math.round(elapsed / msPerDay) + ' days ago';
+    }
+
+    else if (elapsed < msPerYear) {
+        return Math.round(elapsed / msPerMonth) + ' months ago';
+    }
+
+    else {
+        return Math.round(elapsed / msPerYear) + ' years ago';
+    }
 }

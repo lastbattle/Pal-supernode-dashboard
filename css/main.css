@@ -35,7 +35,7 @@ body {
 
 /* Results related*/
 #table_results {
-    width: 70%;
+    width: 90%;
 }
 
 #resultsDiv {
@@ -90,7 +90,7 @@ body {
     }
 
     .table_results_td {
-        max-width: 130px;
+        max-width: 100px;
         word-break:break-word;
     }
     .table_results_tr {
