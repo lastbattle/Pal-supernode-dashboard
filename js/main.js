@@ -2,6 +2,7 @@
  * Constants
  */
 var queryAPI = "https://fumx256y2c.execute-api.ap-southeast-1.amazonaws.com/dev/sn/incentive?address=";
+var superNodeReqTokens = 100000;
 
 /*
  * Functions
@@ -118,8 +119,12 @@ function queryInputAddresses() {
                         cell_txCount.appendChild(column_txCount);
 
                         // Bonus cell
+                        var monthlyROI_perc = (incentive / superNodeReqTokens) * 100; // 8%
+                        var annualROI = calcCompoundInterest(superNodeReqTokens, monthlyROI_perc / 100, 1, 12);
+                        var annualROIPerc = (annualROI / superNodeReqTokens) * 100;
+
                         var cell_bonus = newRow.insertCell(0);
-                        let column_bonus = document.createTextNode(!bIsValid ? 0 : ((bonus * 100) + "%"));
+                        let column_bonus = document.createTextNode(!bIsValid ? 0 : ((bonus * 100) + "%") + " (" + annualROIPerc.toFixed(1)+"% / year)");
                         cell_bonus.appendChild(column_bonus);
 
                         // Earnings cell
@@ -187,6 +192,9 @@ function generateRandomText(length) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
+}
+function calcCompoundInterest(principal, annual_rate, n_times, t_years) {
+    return principal * (Math.pow(1 + annual_rate / n_times, n_times * t_years) - 1);
 }
 
 function timeDifference(current, previous) {
