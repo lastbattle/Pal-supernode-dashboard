@@ -103,7 +103,7 @@ function queryInputAddresses() {
                                 bFirstTx = true;
 
                                 var cell_lastTxTime = newRow.insertCell(0);
-                                if (relativeDiff.indexOf("mins ago") != -1 || relativeDiff.indexOf("min ago") != -1) {
+                                if (relativeDiff.indexOf("mins ago") != -1 || relativeDiff.indexOf("min ago") != -1relativeDiff.indexOf("secs ago") != -1 || relativeDiff.indexOf("sec ago") != -1) {
                                     var bold = document.createElement('strong');
                                     bold.appendChild(document.createTextNode(relativeDiff));
 
