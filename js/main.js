@@ -85,7 +85,7 @@ function queryInputAddresses() {
                         var txThisMonth = 0;
                         for (var z = 0; z < result.transactions.length; z++) {
                             var tx = result.transactions[z];
-         
+
                             var timestamp_split = tx.timestamp.split(' ');
                             var timestamp_1_split = timestamp_split[0].split('-');
                             var timestamp_2_split = timestamp_split[1].split(':');
@@ -103,8 +103,16 @@ function queryInputAddresses() {
                                 bFirstTx = true;
 
                                 var cell_lastTxTime = newRow.insertCell(0);
-                                let column_lastTxTime = document.createTextNode(relativeDiff);
-                                cell_lastTxTime.appendChild(column_lastTxTime);
+                                if (relativeDiff.indexOf("mins ago") != -1 || relativeDiff.indexOf("min ago") != -1) {
+                                    var bold = document.createElement('strong');
+                                    bold.appendChild(document.createTextNode(relativeDiff));
+
+                                    cell_lastTxTime.appendChild(bold);
+                                } else {
+                                    let column_lastTxTime = document.createTextNode(relativeDiff);
+
+                                    cell_lastTxTime.appendChild(column_lastTxTime);
+                                }
                             }
 
                             // determine the number of tx for this month
@@ -114,9 +122,22 @@ function queryInputAddresses() {
                         }
 
                         // TX count cell
+                        var thisMonthText = !bIsValid ? 0 : " (" + txThisMonth + ")";
+
                         var cell_txCount = newRow.insertCell(0);
-                        let column_txCount = document.createTextNode(!bIsValid ? 0 : transactionsCount + " (" + txThisMonth + ")");
-                        cell_txCount.appendChild(column_txCount);
+                        if (txThisMonth >= 100) {
+                            let column_txCount = document.createTextNode(!bIsValid ? 0 : transactionsCount);
+
+                            var bold = document.createElement('strong');
+                            bold.appendChild(document.createTextNode(thisMonthText));
+
+                            cell_txCount.appendChild(column_txCount);
+                            cell_txCount.appendChild(bold);
+                        } else {
+                            let column_txCount = document.createTextNode(!bIsValid ? 0 : transactionsCount + thisMonthText);
+
+                            cell_txCount.appendChild(column_txCount);
+                        }
 
                         // Bonus cell
                         var monthlyROI_perc = (incentive / superNodeReqTokens) * 100; // 8%
@@ -208,26 +229,56 @@ function timeDifference(current, previous) {
     var elapsed = current - previous;
 
     if (elapsed < msPerMinute) {
-        return Math.round(elapsed / 1000) + ' secs ago';
+        var seconds = Math.round(elapsed / 1000);
+
+        if (seconds == 1) {
+            return seconds + ' sec ago';
+        }
+        return seconds + ' secs ago';
     }
 
     else if (elapsed < msPerHour) {
-        return Math.round(elapsed / msPerMinute) + ' mins ago';
+        var mins = Math.round(elapsed / msPerMinute);
+
+        if (mins == 1) {
+            return mins + ' min ago';
+        }
+        return mins + ' mins ago';
     }
 
     else if (elapsed < msPerDay) {
-        return Math.round(elapsed / msPerHour) + ' hrs ago';
+        var hrs = Math.round(elapsed / msPerHour);
+
+        if (hrs == 1) {
+            return hrs + ' hr ago';
+        }
+        return hrs + ' hrs ago';
     }
 
     else if (elapsed < msPerMonth) {
-        return Math.round(elapsed / msPerDay) + ' days ago';
+        var days = Math.round(elapsed / msPerDay);
+
+        if (days == 1) {
+            return days + ' day ago';
+        }
+        return days + ' days ago';
     }
 
     else if (elapsed < msPerYear) {
-        return Math.round(elapsed / msPerMonth) + ' months ago';
+        var months = Math.round(elapsed / msPerMonth);
+
+        if (months == 1) {
+            return months + ' month ago';
+        }
+        return months + ' months ago';
     }
 
     else {
-        return Math.round(elapsed / msPerYear) + ' years ago';
+        var years = Math.round(elapsed / msPerYear);
+
+        if (years == 1) {
+            return years + ' year ago';
+        }
+        return years + ' years ago';
     }
 }
