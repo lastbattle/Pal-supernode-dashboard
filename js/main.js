@@ -4,6 +4,9 @@
 var queryAPI = "https://fumx256y2c.execute-api.ap-southeast-1.amazonaws.com/dev/sn/incentive?address=";
 var superNodeReqTokens = 100000;
 
+// time
+var gmtTime = 8; // 8 hrs ahead
+
 /*
  * Functions
  */
@@ -79,7 +82,8 @@ function queryInputAddresses() {
                         //timestamp: "2019-04-17 11:22:01"
                         var dateNow = new Date;
                         var utc_timestamp = Date.UTC(dateNow.getUTCFullYear(), dateNow.getUTCMonth(), dateNow.getUTCDate(),
-                            dateNow.getUTCHours(), dateNow.getUTCMinutes(), dateNow.getUTCSeconds(), dateNow.getUTCMilliseconds());
+                            dateNow.getUTCHours() + gmtTime, dateNow.getUTCMinutes(), dateNow.getUTCSeconds(), dateNow.getUTCMilliseconds());
+                        var dateNow_SGT = new Date(utc_timestamp);
 
                         var bFirstTx = false;
                         var txThisMonth = 0;
@@ -93,7 +97,7 @@ function queryInputAddresses() {
                             //var date = Date.parse(tx.timestamp);
                             var utc_txTimestamp = Date.UTC(
                                 parseInt(timestamp_1_split[0]), parseInt(timestamp_1_split[1]) - 1, parseInt(timestamp_1_split[2]),
-                                parseInt(timestamp_2_split[0]), parseInt(timestamp_2_split[1]), parseInt(timestamp_2_split[2]), 0);
+                                parseInt(timestamp_2_split[0]) + gmtTime, parseInt(timestamp_2_split[1]), parseInt(timestamp_2_split[2]), 0);
                             var date_tx = new Date(utc_txTimestamp);
 
                             //console.log(utc_timestamp + " " + date);
@@ -116,7 +120,7 @@ function queryInputAddresses() {
                             }
 
                             // determine the number of tx for this month
-                            if (dateNow.getUTCFullYear() == date_tx.getUTCFullYear() && dateNow.getUTCMonth() == date_tx.getUTCMonth()) {
+                            if (dateNow_SGT.getUTCFullYear() == date_tx.getUTCFullYear() && dateNow_SGT.getUTCMonth() == date_tx.getUTCMonth()) {
                                 txThisMonth++;
                             }
                         }
