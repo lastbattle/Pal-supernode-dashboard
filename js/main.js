@@ -126,19 +126,20 @@ function queryInputAddresses() {
                         }
 
                         // TX count cell
-                        var thisMonthText = !bIsValid ? 0 : " (" + txThisMonth + ")";
+                        var totalTxText = !bIsValid ? 0 : " (" + transactionsCount + ")";
+                        var thisMonthText = !bIsValid ? 0 : txThisMonth;
 
                         var cell_txCount = newRow.insertCell(0);
                         if (txThisMonth >= 100) {
-                            let column_txCount = document.createTextNode(!bIsValid ? 0 : transactionsCount);
+                            let column_txCount = document.createTextNode(thisMonthText);
 
                             var bold = document.createElement('strong');
-                            bold.appendChild(document.createTextNode(thisMonthText));
+                            bold.appendChild(document.createTextNode(totalTxText));
 
                             cell_txCount.appendChild(column_txCount);
                             cell_txCount.appendChild(bold);
                         } else {
-                            let column_txCount = document.createTextNode(!bIsValid ? 0 : transactionsCount + thisMonthText);
+                            let column_txCount = document.createTextNode(!bIsValid ? 0 : thisMonthText + totalTxText);
 
                             cell_txCount.appendChild(column_txCount);
                         }
