@@ -125,6 +125,8 @@ function queryInputAddresses() {
                             }
                         }
 
+                        var bonusByTx = calcBonusByTxCount(txThisMonth);
+
                         // TX count cell
                         var totalTxText = !bIsValid ? 0 : " (" + transactionsCount + ")";
                         var thisMonthText = !bIsValid ? 0 : txThisMonth;
@@ -150,12 +152,12 @@ function queryInputAddresses() {
                         var annualROIPerc = (annualROI / superNodeReqTokens) * 100;
 
                         var cell_bonus = newRow.insertCell(0);
-                        let column_bonus = document.createTextNode(!bIsValid ? 0 : ((bonus * 100) + "%") + " (" + annualROIPerc.toFixed(1)+"% / year)");
+                        let column_bonus = document.createTextNode(!bIsValid ? 0 : ((bonusByTx * 100) + "%") + " (" + annualROIPerc.toFixed(1)+"% / year)");
                         cell_bonus.appendChild(column_bonus);
 
                         // Earnings cell
                         var cell_earnings = newRow.insertCell(0);
-                        let column_earnings = document.createTextNode(!bIsValid ? "(Unknown)" : ((incentive).toFixed(2) + " PAL"));
+                        let column_earnings = document.createTextNode(!bIsValid ? "(Unknown)" : ((txThisMonth <= 0 ? 0 : (incentive).toFixed(2)) + " PAL"));
                         cell_earnings.appendChild(column_earnings);
 
                         // Address cell
@@ -219,6 +221,22 @@ function generateRandomText(length) {
 
     return text;
 }
+
+function calcBonusByTxCount(count) {
+    if (count >= 100) {
+        return 0.5;
+    } else if (count >= 80) {
+        return 0.4;
+    } else if (count >= 60) {
+        return 0.3;
+    } else if (count >= 40) {
+        return 0.2;
+    } else if (count >= 20) {
+        return 0.1;
+    }
+    return 0;
+}
+
 function calcCompoundInterest(principal, annual_rate, n_times, t_years) {
     return principal * (Math.pow(1 + annual_rate / n_times, n_times * t_years) - 1);
 }
