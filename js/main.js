@@ -1,15 +1,36 @@
 /**
  * Constants
  */
-var queryAPI = "https://fumx256y2c.execute-api.ap-southeast-1.amazonaws.com/dev/sn/incentive?address=";
+var queryAPI = "https://fumx256y2c.execute-api.ap-southeast-1.amazonaws.com/dev/sn/incentive";
 var superNodeReqTokens = 100000;
 
 // time
 var gmtTime = 8; // 8 hrs ahead
 
+class RowItems {
+    constructor(address, row) {
+        this.address = address;
+        this.row = row;
+    }
+
+    getRow() {
+        return this.row;
+    }
+
+    getAddress() {
+        return this.address;
+    }
+}
+
 /*
  * Functions
  */
+var totalTx = 0;
+var totalEarnings = 0;
+var addressSplit = null;
+var completedQueryCount = 0;
+var addrMap = new Map();
+
 var bIsQuerying = false;
 function queryInputAddresses() {
     if (bIsQuerying) {
@@ -37,168 +58,205 @@ function queryInputAddresses() {
         tableElement.deleteRow(i);
     }
 
-    setTimeout(function () {
-        try {
-            // Input address
-            var inputAddresses = document.getElementById('input_addresses').value;
-            var addressSplit = inputAddresses.split(",");
-
-            // Results div
-            var resultsDivElement = document.getElementById('resultsDiv');
-            resultsDivElement.style.display = "block";
-
-            var totalTx = 0;
-            var totalEarnings = 0;
-
-            for (var i = 0; i < addressSplit.length; i++) {
-                var address = addressSplit[i];
-
-                $.ajax({
-                    type: "GET",
-                    url: queryAPI + address,
-                    processData: false,
-                    contentType: false,
-                    cache: false,
-                    async: false, // racing condition though :( 
-
-                    success: function (result) {
-                        var txCount = result.tx_count;
-                        var bonus = result.bonus;
-                        var incentive = result.incentive;
-                        var bIsValid = result.is_valid == true;
-                        var transactionsCount = result.transactions.length;
+    // Add to map
+    var inputAddresses = document.getElementById('input_addresses').value;
+    addressSplit = inputAddresses.split(",");
 
 
-                        console.log(result);
-                        //console.log(bIsValid);
-                        console.log(address);
-                        //console.log(result.tx_count);
-                        //console.log(transactionsCount);
+    for (var i = 0; i < addressSplit.length; i++) {
+        var address = addressSplit[i];
 
-                        var newRow = tableElement.insertRow(-1);
-                        newRow.className = "table_results_tr";
+        var newRow = tableElement.insertRow(-1);
+        newRow.className = "table_results_tr";
 
-                        // Last transaction
-                        //timestamp: "2019-04-17 11:22:01"
-                        var dateNow = new Date;
-                        var utc_timestamp = Date.UTC(dateNow.getUTCFullYear(), dateNow.getUTCMonth(), dateNow.getUTCDate(),
-                            dateNow.getUTCHours() + gmtTime, dateNow.getUTCMinutes(), dateNow.getUTCSeconds(), dateNow.getUTCMilliseconds());
-                        var dateNow_SGT = new Date(utc_timestamp);
+        addrMap.set(address, new RowItems(address, newRow));
+    }
 
-                        var bFirstTx = false;
-                        var txThisMonth = 0;
-                        for (var z = 0; z < result.transactions.length; z++) {
-                            var tx = result.transactions[z];
+    // Results div
+    var resultsDivElement = document.getElementById('resultsDiv');
+    resultsDivElement.style.display = "block";
 
-                            var timestamp_split = tx.timestamp.split(' ');
-                            var timestamp_1_split = timestamp_split[0].split('-');
-                            var timestamp_2_split = timestamp_split[1].split(':');
+    totalTx = 0;
+    totalEarnings = 0;
+    completedQueryCount = 0;
 
-                            //var date = Date.parse(tx.timestamp);
-                            var utc_txTimestamp = Date.UTC(
-                                parseInt(timestamp_1_split[0]), parseInt(timestamp_1_split[1]) - 1, parseInt(timestamp_1_split[2]),
-                                parseInt(timestamp_2_split[0]) + gmtTime, parseInt(timestamp_2_split[1]), parseInt(timestamp_2_split[2]), 0);
-                            var date_tx = new Date(utc_txTimestamp);
+    for (var i = 0; i < addressSplit.length; i++) {
+        var address = addressSplit[i];
 
-                            //console.log(utc_timestamp + " " + date);
-                            var relativeDiff = timeDifference(utc_timestamp, utc_txTimestamp);
+        $.ajax({
+            type: "GET",
+            url: queryAPI,
+            data: "address=" + address,
 
-                            if (!bFirstTx) {
-                                bFirstTx = true;
+            headers: { // Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,pal-api-token
+                //'X-Amz-Security-Token': address,
+            },
+            beforeSend: function (xhr) {
+                //request.setRequestHeader("Addr", address);
+            },
+            cache: false,
+            //async: false,
 
-                                var cell_lastTxTime = newRow.insertCell(0);
-                                if (relativeDiff.indexOf("mins ago") != -1 || relativeDiff.indexOf("min ago") != -1 || relativeDiff.indexOf("secs ago") != -1 || relativeDiff.indexOf("sec ago") != -1) {
-                                    var bold = document.createElement('strong');
-                                    bold.appendChild(document.createTextNode(relativeDiff));
+            success: function (result, textStatus, jqXHR) {
+                completedQueryCount++;
 
-                                    cell_lastTxTime.appendChild(bold);
-                                } else {
-                                    let column_lastTxTime = document.createTextNode(relativeDiff);
+                var txCount = result.tx_count;
+                var bonus = result.bonus;
+                var incentive = result.incentive;
+                var bIsValid = result.is_valid == true;
+                var transactionsCount = result.transactions.length;
 
-                                    cell_lastTxTime.appendChild(column_lastTxTime);
-                                }
-                            }
+                console.log(result);
+                //console.log(bIsValid);
+                //console.log(result.tx_count);
+                //console.log(transactionsCount);
 
-                            // determine the number of tx for this month
-                            if (dateNow_SGT.getUTCFullYear() == date_tx.getUTCFullYear() && dateNow_SGT.getUTCMonth() == date_tx.getUTCMonth()) {
-                                txThisMonth++;
-                            }
-                        }
+                //var newRow = tableElement.insertRow(-1);
+                //newRow.className = "table_results_tr";
 
-                        var bonusByTx = calcBonusByTxCount(txThisMonth);
+                var url = new URL(this.url);
+                var addrParam = url.searchParams.get("address");
+                var rowItem = addrMap.get(addrParam);
+                if (rowItem == null)
+                    return;
+                var newRow = rowItem.getRow();
 
-                        // TX count cell
-                        var totalTxText = !bIsValid ? 0 : " (" + transactionsCount + ")";
-                        var thisMonthText = !bIsValid ? 0 : txThisMonth;
+                // Last transaction
+                //timestamp: "2019-04-17 11:22:01"
+                var dateNow = new Date;
+                var utc_timestamp = Date.UTC(dateNow.getUTCFullYear(), dateNow.getUTCMonth(), dateNow.getUTCDate(),
+                    dateNow.getUTCHours() + gmtTime, dateNow.getUTCMinutes(), dateNow.getUTCSeconds(), dateNow.getUTCMilliseconds());
+                var dateNow_SGT = new Date(utc_timestamp);
 
-                        var cell_txCount = newRow.insertCell(0);
-                        if (txThisMonth >= 100) {
-                            let column_txCount = document.createTextNode(thisMonthText);
+                var bFirstTx = false;
+                var txThisMonth = 0;
+                for (var z = 0; z < result.transactions.length; z++) {
+                    var tx = result.transactions[z];
 
+                    var timestamp_split = tx.timestamp.split(' ');
+                    var timestamp_1_split = timestamp_split[0].split('-');
+                    var timestamp_2_split = timestamp_split[1].split(':');
+
+                    //var date = Date.parse(tx.timestamp);
+                    var utc_txTimestamp = Date.UTC(
+                        parseInt(timestamp_1_split[0]), parseInt(timestamp_1_split[1]) - 1, parseInt(timestamp_1_split[2]),
+                        parseInt(timestamp_2_split[0]) + gmtTime, parseInt(timestamp_2_split[1]), parseInt(timestamp_2_split[2]), 0);
+                    var date_tx = new Date(utc_txTimestamp);
+
+                    //console.log(utc_timestamp + " " + date);
+                    var relativeDiff = timeDifference(utc_timestamp, utc_txTimestamp);
+
+                    if (!bFirstTx) {
+                        bFirstTx = true;
+
+                        var cell_lastTxTime = newRow.insertCell(0);
+                        if (relativeDiff.indexOf("mins ago") != -1 || relativeDiff.indexOf("min ago") != -1 || relativeDiff.indexOf("secs ago") != -1 || relativeDiff.indexOf("sec ago") != -1) {
                             var bold = document.createElement('strong');
-                            bold.appendChild(document.createTextNode(totalTxText));
+                            bold.appendChild(document.createTextNode(relativeDiff));
 
-                            cell_txCount.appendChild(column_txCount);
-                            cell_txCount.appendChild(bold);
+                            cell_lastTxTime.appendChild(bold);
                         } else {
-                            let column_txCount = document.createTextNode(!bIsValid ? 0 : thisMonthText + totalTxText);
+                            let column_lastTxTime = document.createTextNode(relativeDiff);
 
-                            cell_txCount.appendChild(column_txCount);
+                            cell_lastTxTime.appendChild(column_lastTxTime);
                         }
-
-                        // Bonus cell
-                        var monthlyROI_perc = (incentive / superNodeReqTokens) * 100; // 8%
-                        var annualROI = calcCompoundInterest(superNodeReqTokens, monthlyROI_perc / 100, 1, 12);
-                        var annualROIPerc = (annualROI / superNodeReqTokens) * 100;
-
-                        var cell_bonus = newRow.insertCell(0);
-                        let column_bonus = document.createTextNode(!bIsValid ? 0 : ((bonusByTx * 100) + "%") + " (" + annualROIPerc.toFixed(1)+"% / year)");
-                        cell_bonus.appendChild(column_bonus);
-
-                        // Earnings cell
-                        var cell_earnings = newRow.insertCell(0);
-                        let column_earnings = document.createTextNode(!bIsValid ? "(Unknown)" : ((txThisMonth <= 0 ? 0 : (incentive).toFixed(2)) + " PAL"));
-                        cell_earnings.appendChild(column_earnings);
-
-                        // Address cell
-                        var cell_address = newRow.insertCell(0);
-                        let column_address = document.createTextNode(address);
-
-                        var addressAHref = document.createElement('a');
-                        addressAHref.appendChild(column_address);
-                        addressAHref.title = "https://explorer.pal.network/address/" + address;
-                        addressAHref.href = "https://explorer.pal.network/address/" + address;
-                        addressAHref.target = "_blank";
-
-                        cell_address.className = "table_results_td";
-                        cell_address.appendChild(addressAHref);
-
-
-                        // Update total earnings
-                        totalEarnings += incentive;
-                        //totalEarningsElement.innerHTML = parseInt(totalEarningsElement.innerHTML) + incentive;
-
-                        // Update total transactions
-                        totalTx += txCount;
-                        //totalTxElement.innerHTML = parseInt(totalTxElement.innerHTML) + txCount;
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        alert("Error querying API. Have you tried restarting your PC? :D " + XMLHttpRequest.statusText + " " + textStatus + " " + errorThrown);
                     }
-                });
+
+                    // determine the number of tx for this month
+                    if (dateNow_SGT.getUTCFullYear() == date_tx.getUTCFullYear() && dateNow_SGT.getUTCMonth() == date_tx.getUTCMonth()) {
+                        txThisMonth++;
+                    }
+                }
+
+                var bonusByTx = calcBonusByTxCount(txThisMonth);
+
+                // TX count cell
+                var totalTxText = !bIsValid ? 0 : " (" + transactionsCount + ")";
+                var thisMonthText = !bIsValid ? 0 : txThisMonth;
+
+                var cell_txCount = newRow.insertCell(0);
+                if (txThisMonth >= 100) {
+                    let column_txCount = document.createTextNode(thisMonthText);
+
+                    var bold = document.createElement('strong');
+                    bold.appendChild(document.createTextNode(totalTxText));
+
+                    cell_txCount.appendChild(column_txCount);
+                    cell_txCount.appendChild(bold);
+                } else {
+                    let column_txCount = document.createTextNode(!bIsValid ? 0 : thisMonthText + totalTxText);
+
+                    cell_txCount.appendChild(column_txCount);
+                }
+
+                // Bonus cell
+                var monthlyROI_perc = (incentive / superNodeReqTokens) * 100; // 8%
+                var annualROI = calcCompoundInterest(superNodeReqTokens, monthlyROI_perc / 100, 1, 12);
+                var annualROIPerc = (annualROI / superNodeReqTokens) * 100;
+
+                var cell_bonus = newRow.insertCell(0);
+                let column_bonus = document.createTextNode(!bIsValid ? 0 : ((bonusByTx * 100) + "%") + " (" + annualROIPerc.toFixed(1) + "% / year)");
+                cell_bonus.appendChild(column_bonus);
+
+                // Earnings cell
+                var cell_earnings = newRow.insertCell(0);
+                let column_earnings = document.createTextNode(!bIsValid ? "(Unknown)" : ((txThisMonth <= 0 ? 0 : (incentive).toFixed(2)) + " PAL"));
+                cell_earnings.appendChild(column_earnings);
+
+                // Address cell
+                var cell_address = newRow.insertCell(0);
+                let column_address = document.createTextNode(addrParam);
+
+                var addressAHref = document.createElement('a');
+                addressAHref.appendChild(column_address);
+                addressAHref.title = "https://explorer.pal.network/address/" + addrParam;
+                addressAHref.href = "https://explorer.pal.network/address/" + addrParam;
+                addressAHref.target = "_blank";
+
+                cell_address.className = "table_results_td";
+                cell_address.appendChild(addressAHref);
+
+
+                // Update total earnings
+                totalEarnings += incentive;
+                //totalEarningsElement.innerHTML = parseInt(totalEarningsElement.innerHTML) + incentive;
+
+                // Update total transactions
+                totalTx += txCount;
+                //totalTxElement.innerHTML = parseInt(totalTxElement.innerHTML) + txCount;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log("Error querying API. Have you tried restarting your PC? :D " + XMLHttpRequest.statusText + " " + textStatus + " " + errorThrown);
             }
+        });
+    }
+    //console.log(inputAddresses);
 
-            //console.log(inputAddresses);
-        } finally {
-            totalEarningsElement.innerHTML = totalEarnings.toFixed(2);
-            totalTxElement.innerHTML = totalTx;
-            totalAddressElement.innerHTML = addressSplit.length;
+    // Update total after 3 seconds
+    intervalObj = setInterval(onCheckCompleteBulkQuery,1000);
+}
 
-            document.getElementById('button_query').disabled = false;
+var intervalObj = null;
+function onCheckCompleteBulkQuery() {
+    console.log("completed count: " + completedQueryCount + " " + addressSplit.length);
 
-            bIsQuerying = false;
-        }
-    }, 0);
+    if (completedQueryCount >= addressSplit.length) {
+        clearInterval(intervalObj);
+
+        var totalEarningsElement = document.getElementById('h3_totalEarnings');
+        var totalTxElement = document.getElementById('h3_totalTxCount');
+        var totalAddressElement = document.getElementById('h3_totalAddressCount');;
+
+        totalEarningsElement.innerHTML = totalEarnings.toFixed(2);
+        totalTxElement.innerHTML = totalTx;
+        totalAddressElement.innerHTML = addressSplit.length;
+
+        document.getElementById('button_query').disabled = false;
+
+        addrMap.clear();
+
+        bIsQuerying = false;
+    }
 }
 
 //////////////////////////////// UTILS
