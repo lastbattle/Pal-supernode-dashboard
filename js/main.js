@@ -2,15 +2,19 @@
  * Constants
  */
 var queryAPI = "https://fumx256y2c.execute-api.ap-southeast-1.amazonaws.com/dev/sn/incentive";
+var incentiveURL = "https://explorer.pal.network/incentive?address=";
+
 var superNodeReqTokens = 100000;
+var maxConfirmationsForHighestBonus = 100;
 
 // time
 var gmtTime = 8; // 8 hrs ahead
 
 class RowItems {
-    constructor(address, row) {
+    constructor(address, row, order) {
         this.address = address;
         this.row = row;
+        this.order = order;
     }
 
     getRow() {
@@ -19,6 +23,10 @@ class RowItems {
 
     getAddress() {
         return this.address;
+    }
+
+    getOrder() {
+        return this.order;
     }
 }
 
@@ -69,7 +77,7 @@ function queryInputAddresses() {
         var newRow = tableElement.insertRow(-1);
         newRow.className = "table_results_tr";
 
-        addrMap.set(address, new RowItems(address, newRow));
+        addrMap.set(address, new RowItems(address, newRow, i + 1));
     }
 
     // Results div
@@ -175,14 +183,14 @@ function queryInputAddresses() {
                 var thisMonthText = !bIsValid ? 0 : txThisMonth;
 
                 var cell_txCount = newRow.insertCell(0);
-                if (txThisMonth >= 100) {
-                    let column_txCount = document.createTextNode(thisMonthText);
-
+                if (txThisMonth >= maxConfirmationsForHighestBonus) {
                     var bold = document.createElement('strong');
-                    bold.appendChild(document.createTextNode(totalTxText));
+                    bold.appendChild(document.createTextNode(thisMonthText));
 
-                    cell_txCount.appendChild(column_txCount);
+                    let column_txCount = document.createTextNode(totalTxText);
+
                     cell_txCount.appendChild(bold);
+                    cell_txCount.appendChild(column_txCount);
                 } else {
                     let column_txCount = document.createTextNode(!bIsValid ? 0 : thisMonthText + totalTxText);
 
@@ -209,13 +217,19 @@ function queryInputAddresses() {
 
                 var addressAHref = document.createElement('a');
                 addressAHref.appendChild(column_address);
-                addressAHref.title = "https://explorer.pal.network/address/" + addrParam;
-                addressAHref.href = "https://explorer.pal.network/address/" + addrParam;
+                addressAHref.title = (incentiveURL + addrParam);
+                addressAHref.href = (incentiveURL + addrParam);
                 addressAHref.target = "_blank";
-
+                if (txThisMonth >= maxConfirmationsForHighestBonus) {
+                    addressAHref.style.setProperty('text-decoration', 'line-through');
+                }
                 cell_address.className = "table_results_td";
                 cell_address.appendChild(addressAHref);
 
+                // Order cell
+                var cell_order = newRow.insertCell(0);
+                let column_order = document.createTextNode(rowItem.getOrder());
+                cell_order.appendChild(column_order);
 
                 // Update total earnings
                 totalEarnings += incentive;
