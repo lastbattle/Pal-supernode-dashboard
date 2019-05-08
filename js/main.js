@@ -34,6 +34,7 @@ class RowItems {
  * Functions
  */
 var totalTx = 0;
+var addressWith100TxCount = 0;
 var totalEarnings = 0;
 var addressSplit = null;
 var completedQueryCount = 0;
@@ -57,7 +58,7 @@ function queryInputAddresses() {
     totalTxElement.innerHTML = "0";
 
     // Total address element
-    var totalAddressElement = document.getElementById('h3_totalAddressCount');;
+    var totalAddressElement = document.getElementById('h3_totalAddressCount');
 
     // Table element
     var tableElement = document.getElementById('table_results');
@@ -85,6 +86,7 @@ function queryInputAddresses() {
     resultsDivElement.style.display = "block";
 
     totalTx = 0;
+    addressWith100TxCount = 0;
     totalEarnings = 0;
     completedQueryCount = 0;
 
@@ -239,6 +241,8 @@ function queryInputAddresses() {
                 // Update total transactions
                 totalTx += txCount;
                 //totalTxElement.innerHTML = parseInt(totalTxElement.innerHTML) + txCount;
+
+                addressWith100TxCount += txThisMonth >= maxConfirmationsForHighestBonus ? 1 : 0;
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 console.log("Error querying API. Have you tried restarting your PC? :D " + XMLHttpRequest.statusText + " " + textStatus + " " + errorThrown);
@@ -260,11 +264,11 @@ function onCheckCompleteBulkQuery() {
 
         var totalEarningsElement = document.getElementById('h3_totalEarnings');
         var totalTxElement = document.getElementById('h3_totalTxCount');
-        var totalAddressElement = document.getElementById('h3_totalAddressCount');;
+        var totalAddressElement = document.getElementById('h3_totalAddressCount');
 
         totalEarningsElement.innerHTML = totalEarnings.toFixed(2);
         totalTxElement.innerHTML = totalTx;
-        totalAddressElement.innerHTML = addressSplit.length;
+        totalAddressElement.innerHTML = addressWith100TxCount + " / " +  addressSplit.length;
 
         document.getElementById('button_query').disabled = false;
 
