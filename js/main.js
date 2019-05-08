@@ -71,13 +71,13 @@ function queryInputAddresses() {
     addressSplit = inputAddresses.split(",");
 
 
-    for (var i = 0; i < addressSplit.length; i++) {
-        var address = addressSplit[i];
+    for (var a = 0; a < addressSplit.length; a++) {
+        var address = addressSplit[a];
 
         var newRow = tableElement.insertRow(-1);
         newRow.className = "table_results_tr";
 
-        addrMap.set(address, new RowItems(address, newRow, i + 1));
+        addrMap.set(address, new RowItems(address, newRow, a + 1));
     }
 
     // Results div
@@ -177,6 +177,7 @@ function queryInputAddresses() {
                 }
 
                 var bonusByTx = calcBonusByTxCount(txThisMonth);
+                var incentiveByTx = calcEarningsByTxCount(txThisMonth);
 
                 // TX count cell
                 var totalTxText = !bIsValid ? 0 : " (" + transactionsCount + ")";
@@ -198,7 +199,7 @@ function queryInputAddresses() {
                 }
 
                 // Bonus cell
-                var monthlyROI_perc = (incentive / superNodeReqTokens) * 100; // 8%
+                var monthlyROI_perc = (incentiveByTx / superNodeReqTokens) * 100; // 8%
                 var annualROI = calcCompoundInterest(superNodeReqTokens, monthlyROI_perc / 100, 1, 12);
                 var annualROIPerc = (annualROI / superNodeReqTokens) * 100;
 
@@ -208,7 +209,7 @@ function queryInputAddresses() {
 
                 // Earnings cell
                 var cell_earnings = newRow.insertCell(0);
-                let column_earnings = document.createTextNode(!bIsValid ? "(Unknown)" : ((txThisMonth <= 0 ? 0 : (incentive).toFixed(2)) + " PAL"));
+                let column_earnings = document.createTextNode(!bIsValid ? "(Unknown)" : ((txThisMonth <= 0 ? 0 : (incentiveByTx).toFixed(2)) + " PAL"));
                 cell_earnings.appendChild(column_earnings);
 
                 // Address cell
@@ -232,7 +233,7 @@ function queryInputAddresses() {
                 cell_order.appendChild(column_order);
 
                 // Update total earnings
-                totalEarnings += incentive;
+                totalEarnings += incentiveByTx;
                 //totalEarningsElement.innerHTML = parseInt(totalEarningsElement.innerHTML) + incentive;
 
                 // Update total transactions
@@ -273,6 +274,41 @@ function onCheckCompleteBulkQuery() {
     }
 }
 
+//////////////////////////////// Network
+function calcBonusByTxCount(count) {
+    if (count >= 100) {
+        return 0.5;
+    } else if (count >= 80) {
+        return 0.4;
+    } else if (count >= 60) {
+        return 0.3;
+    } else if (count >= 40) {
+        return 0.2;
+    } else if (count >= 20) {
+        return 0.1;
+    }
+    return 0;
+}
+
+// https://medium.com/pal-network/distributed-april-supernode-incentives-cd8cc67d236e
+function calcEarningsByTxCount(count) { 
+    if (count >= 100) {
+        return 10787.44;
+    } else if (count >= 80) {
+        return 10068.28;
+    } else if (count >= 60) {
+        return 9349.11;
+    } else if (count >= 40) {
+        return 8629.95;
+    } else if (count >= 20) {
+        return 7191.63;
+    } else if (count > 0) {
+        return 7191.63;
+    }
+    return 0;
+}
+
+
 //////////////////////////////// UTILS
 function Base64Encode(str, encoding = 'utf-8') {
     var bytes = new (TextEncoder || TextEncoderLite)(encoding).encode(str);
@@ -292,21 +328,6 @@ function generateRandomText(length) {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
 
     return text;
-}
-
-function calcBonusByTxCount(count) {
-    if (count >= 100) {
-        return 0.5;
-    } else if (count >= 80) {
-        return 0.4;
-    } else if (count >= 60) {
-        return 0.3;
-    } else if (count >= 40) {
-        return 0.2;
-    } else if (count >= 20) {
-        return 0.1;
-    }
-    return 0;
 }
 
 function calcCompoundInterest(principal, annual_rate, n_times, t_years) {
