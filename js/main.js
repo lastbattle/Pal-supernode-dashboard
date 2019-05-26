@@ -3,6 +3,8 @@
  */
 var queryAPI = "https://fumx256y2c.execute-api.ap-southeast-1.amazonaws.com/dev/sn/incentive";
 var incentiveURL = "https://explorer.pal.network/incentive?address=";
+var balanceURL = "https://explorer.pal.network/address/";
+var queryBalanceAPI = "https://mainnet.pal.network/v1/accounts/";
 
 var superNodeReqTokens = 100000;
 var maxConfirmationsForHighestBonus = 100;
@@ -27,6 +29,13 @@ class RowItems {
 
     getOrder() {
         return this.order;
+    }
+
+    getBalanceColumn() {
+        return this.balanceColumn;
+    }
+    setBalanceColumn(col) {
+        this.balanceColumn = col;
     }
 }
 
@@ -206,13 +215,27 @@ function queryInputAddresses() {
                 var annualROIPerc = (annualROI / superNodeReqTokens) * 100;
 
                 var cell_bonus = newRow.insertCell(0);
-                let column_bonus = document.createTextNode(!bIsValid ? 0 : ((bonusByTx * 100) + "%") + " (" + annualROIPerc.toFixed(1) + "% / year)");
+                let column_bonus = document.createTextNode(!bIsValid ? 0 : ((bonusByTx * 100) + "%") + " (" + annualROIPerc.toFixed(1) + "%)");
                 cell_bonus.appendChild(column_bonus);
 
                 // Earnings cell
                 var cell_earnings = newRow.insertCell(0);
                 let column_earnings = document.createTextNode(!bIsValid ? "(Unknown)" : ((txThisMonth <= 0 ? 0 : (incentiveByTx).toFixed(2)) + " PAL"));
                 cell_earnings.appendChild(column_earnings);
+
+                // Balance
+                var cell_balance = newRow.insertCell(0);
+                let column_balance = document.createTextNode("");
+
+                var addressAHrefBalance = document.createElement('a');
+                addressAHrefBalance.appendChild(column_balance);
+                addressAHrefBalance.title = "Balance";
+                addressAHrefBalance.href = (balanceURL + addrParam);
+                addressAHrefBalance.target = "_blank";
+                rowItem.setBalanceColumn(addressAHrefBalance);
+
+                cell_balance.className = "table_results_td";
+                cell_balance.appendChild(addressAHrefBalance);
 
                 // Address cell
                 var cell_address = newRow.insertCell(0);
@@ -260,6 +283,8 @@ function onCheckCompleteBulkQuery() {
     console.log("completed count: " + completedQueryCount + " " + addressSplit.length);
 
     if (completedQueryCount >= addressSplit.length) {
+        queryAddressBalances();
+
         clearInterval(intervalObj);
 
         var totalEarningsElement = document.getElementById('h3_totalEarnings');
@@ -275,6 +300,36 @@ function onCheckCompleteBulkQuery() {
         addrMap.clear();
 
         bIsQuerying = false;
+    }
+}
+
+function queryAddressBalances() {
+    for (var i = 0; i < addressSplit.length; i++) {
+        var address = addressSplit[i];
+
+        $.ajax({
+            type: "GET",
+            url: queryBalanceAPI + address,
+            cache: false,
+            async: false,
+
+            success: function (result, textStatus, jqXHR) {
+
+                for (var j in result) {
+                    var sub_key = j;
+                    var sub_val = result[j];
+
+                    var rowItem = addrMap.get(j);
+                    if (rowItem === null)
+                        return;
+                    var balanceColumn = rowItem.getBalanceColumn();
+                    if (balanceColumn !== null) {
+                        balanceColumn.innerHTML  = convertWeiToEther(sub_val["balance"]).toFixed(2);
+                    }
+                }
+
+            }
+        });
     }
 }
 
@@ -322,6 +377,10 @@ function Base64Encode(str, encoding = 'utf-8') {
 function Base64Decode(str, encoding = 'utf-8') {
     var bytes = base64js.toByteArray(str);
     return new (TextDecoder || TextDecoderLite)(encoding).decode(bytes);
+}
+
+function convertWeiToEther(val) {
+    return val / 1000000000000000000;
 }
 
 function generateRandomText(length) {
