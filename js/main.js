@@ -82,12 +82,12 @@ function queryInputAddresses() {
 
 
     for (var a = 0; a < addressSplit.length; a++) {
-        var address = addressSplit[a];
+        var address_ = addressSplit[a];
 
         var newRow = tableElement.insertRow(-1);
         newRow.className = "table_results_tr";
 
-        addrMap.set(address, new RowItems(address, newRow, a + 1));
+        addrMap.set(address_, new RowItems(address_, newRow, a + 1));
     }
 
     // Results div
@@ -99,8 +99,8 @@ function queryInputAddresses() {
     totalEarnings = 0;
     completedQueryCount = 0;
 
-    for (var i = 0; i < addressSplit.length; i++) {
-        var address = addressSplit[i];
+    for (var i_addr = 0; i_addr < addressSplit.length; i_addr++) {
+        var address = addressSplit[i_addr];
 
         $.ajax({
             type: "GET",
@@ -196,12 +196,12 @@ function queryInputAddresses() {
 
                 var cell_txCount = newRow.insertCell(0);
                 if (txThisMonth >= maxConfirmationsForHighestBonus) {
-                    var bold = document.createElement('strong');
-                    bold.appendChild(document.createTextNode(thisMonthText));
+                    var bold_bonus = document.createElement('strong');
+                    bold_bonus.appendChild(document.createTextNode(thisMonthText));
 
                     let column_txCount = document.createTextNode(totalTxText);
 
-                    cell_txCount.appendChild(bold);
+                    cell_txCount.appendChild(bold_bonus);
                     cell_txCount.appendChild(column_txCount);
                 } else {
                     let column_txCount = document.createTextNode(!bIsValid ? 0 : thisMonthText + totalTxText);
@@ -275,35 +275,49 @@ function queryInputAddresses() {
     //console.log(inputAddresses);
 
     // Update total after 3 seconds
-    intervalObj = setInterval(onCheckCompleteBulkQuery,1000);
+    intervalObj = setInterval(onCheckCompleteBulkQuery, 1000);
 }
 
 var intervalObj = null;
 function onCheckCompleteBulkQuery() {
-    console.log("completed count: " + completedQueryCount + " " + addressSplit.length);
+    console.log("Completed count for onCheckCompleteBulkQuery(): " + completedQueryCount + " " + addressSplit.length);
 
     if (completedQueryCount >= addressSplit.length) {
         queryAddressBalances();
 
-        clearInterval(intervalObj);
+        console.log("Completed count for queryAddressBalances(): " + completedAddrBalanceCount + " " + addressSplit.length);
+        if (completedAddrBalanceCount >= addressSplit.length) {
+            clearInterval(intervalObj);
 
-        var totalEarningsElement = document.getElementById('h3_totalEarnings');
-        var totalTxElement = document.getElementById('h3_totalTxCount');
-        var totalAddressElement = document.getElementById('h3_totalAddressCount');
+            var totalEarningsElement = document.getElementById('h3_totalEarnings');
+            var totalTxElement = document.getElementById('h3_totalTxCount');
+            var totalAddressElement = document.getElementById('h3_totalAddressCount');
 
-        totalEarningsElement.innerHTML = totalEarnings.toFixed(2);
-        totalTxElement.innerHTML = totalTx;
-        totalAddressElement.innerHTML = addressWith100TxCount + " / " +  addressSplit.length;
+            totalEarningsElement.innerHTML = totalEarnings.toFixed(2);
+            totalTxElement.innerHTML = totalTx;
+            totalAddressElement.innerHTML = addressWith100TxCount + " / " + addressSplit.length;
 
-        document.getElementById('button_query').disabled = false;
+            document.getElementById('button_query').disabled = false;
 
-        addrMap.clear();
+            addrMap.clear();
 
-        bIsQuerying = false;
+            bIsQuerying = false;
+
+            // Resery query address balance
+            bIsQueryingAddressBalance = false;
+            completedAddrBalanceCount = 0;
+        }
     }
 }
 
+var completedAddrBalanceCount = 0;
+var bIsQueryingAddressBalance = false;
 function queryAddressBalances() {
+    if (bIsQueryingAddressBalance) {
+        return;
+    }
+    bIsQueryingAddressBalance = true;
+
     for (var i = 0; i < addressSplit.length; i++) {
         var address = addressSplit[i];
 
@@ -311,7 +325,6 @@ function queryAddressBalances() {
             type: "GET",
             url: queryBalanceAPI + address,
             cache: false,
-            async: false,
 
             success: function (result, textStatus, jqXHR) {
 
@@ -320,13 +333,16 @@ function queryAddressBalances() {
                     var sub_val = result[j];
 
                     var rowItem = addrMap.get(j);
-                    if (rowItem === null)
+                    if (rowItem == null) {
+                        console.log("null addr: " + j);
                         return;
+                    }
                     var balanceColumn = rowItem.getBalanceColumn();
                     if (balanceColumn !== null) {
-                        balanceColumn.innerHTML  = convertWeiToEther(sub_val["balance"]).toFixed(2);
+                        balanceColumn.innerHTML = convertWeiToEther(sub_val["balance"]).toFixed(2);
                     }
                 }
+                completedAddrBalanceCount++;
 
             }
         });
@@ -350,7 +366,7 @@ function calcBonusByTxCount(count) {
 }
 
 // https://medium.com/pal-network/distributed-april-supernode-incentives-cd8cc67d236e
-function calcEarningsByTxCount(count) { 
+function calcEarningsByTxCount(count) {
     if (count >= 100) {
         return 10787.44;
     } else if (count >= 80) {
@@ -410,7 +426,7 @@ function timeDifference(current, previous) {
     if (elapsed < msPerMinute) {
         var seconds = Math.round(elapsed / 1000);
 
-        if (seconds == 1) {
+        if (seconds === 1) {
             return seconds + ' sec ago';
         }
         return seconds + ' secs ago';
@@ -419,7 +435,7 @@ function timeDifference(current, previous) {
     else if (elapsed < msPerHour) {
         var mins = Math.round(elapsed / msPerMinute);
 
-        if (mins == 1) {
+        if (mins === 1) {
             return mins + ' min ago';
         }
         return mins + ' mins ago';
@@ -428,7 +444,7 @@ function timeDifference(current, previous) {
     else if (elapsed < msPerDay) {
         var hrs = Math.round(elapsed / msPerHour);
 
-        if (hrs == 1) {
+        if (hrs === 1) {
             return hrs + ' hr ago';
         }
         return hrs + ' hrs ago';
@@ -437,7 +453,7 @@ function timeDifference(current, previous) {
     else if (elapsed < msPerMonth) {
         var days = Math.round(elapsed / msPerDay);
 
-        if (days == 1) {
+        if (days === 1) {
             return days + ' day ago';
         }
         return days + ' days ago';
@@ -446,7 +462,7 @@ function timeDifference(current, previous) {
     else if (elapsed < msPerYear) {
         var months = Math.round(elapsed / msPerMonth);
 
-        if (months == 1) {
+        if (months === 1) {
             return months + ' month ago';
         }
         return months + ' months ago';
@@ -455,7 +471,7 @@ function timeDifference(current, previous) {
     else {
         var years = Math.round(elapsed / msPerYear);
 
-        if (years == 1) {
+        if (years === 1) {
             return years + ' year ago';
         }
         return years + ' years ago';
