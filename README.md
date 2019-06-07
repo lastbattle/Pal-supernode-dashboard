@@ -1,6 +1,5 @@
-# Pal supernode dashboard
-An all-in-one dashboard if you're running multiple Pal supernodes.
-https://lastbattle.github.io/Pal-supernode-dashboard/
+# P3l supernode dashboard
+An all-in-one dashboard for P3l supernodes.
 
 [![N|Solid](https://i.imgur.com/M42Hnm6.png)]()
 
